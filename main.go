@@ -18,7 +18,7 @@ type Window struct {
 	filename string
 	content  string
 	screen   tcell.Screen
-	cursor   *Cursor
+	cursor   int
 	quiting  bool
 	mode     Mode
 }
@@ -49,7 +49,7 @@ func createWindow(filename string) *Window {
 		filename: filename,
 		content:  string(dat),
 		screen:   s,
-		cursor:   &Cursor{0, 0, 0, 0, 0},
+		cursor:   0,
 		quiting:  false,
 		mode:     NormalMode,
 	}
@@ -69,7 +69,7 @@ func quit(win *Window) {
 func drawWindow(win *Window) {
 	col, row := 0, 0
 	for i, rune := range win.content {
-		if i == win.cursor.pos {
+		if i == win.cursor {
 			win.screen.ShowCursor(col, row)
 		}
 		switch rune {

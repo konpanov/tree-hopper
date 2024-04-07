@@ -1,49 +1,42 @@
 package main
 
-type Cursor struct {
-	col, row  int
-	pos       int
-	linestart int
-	linewidth int
-}
-
 func cursorLeft(win *Window) {
-	if !isLineStart(win.content, win.cursor.pos) {
-		win.cursor.pos--
+	if !isLineStart(win.content, win.cursor) {
+		win.cursor--
 	}
 }
 func cursorRight(win *Window) {
-	if !isLineEnd(win.content, win.cursor.pos) {
-		win.cursor.pos++
+	if !isLineEnd(win.content, win.cursor) {
+		win.cursor++
 	}
 }
 
 func cursorUp(win *Window) {
-	for !isLineStart(win.content, win.cursor.pos) {
-		win.cursor.pos--
+	for !isLineStart(win.content, win.cursor) {
+		win.cursor--
 	}
-	if win.cursor.pos != 0 {
-		win.cursor.pos--
-		if win.content[win.cursor.pos] == '\n' {
-			win.cursor.pos--
+	if win.cursor!= 0 {
+		win.cursor--
+		if win.content[win.cursor] == '\n' {
+			win.cursor--
 		}
-		if win.content[win.cursor.pos] == '\r' {
-			win.cursor.pos--
+		if win.content[win.cursor] == '\r' {
+			win.cursor--
 		}
 	}
 }
 
 func cursorDown(win *Window) {
-	for !isLineEnd(win.content, win.cursor.pos) {
-		win.cursor.pos++
+	for !isLineEnd(win.content, win.cursor) {
+		win.cursor++
 	}
-	if !isEOF(win.content, win.cursor.pos) {
-		win.cursor.pos++
-		if win.content[win.cursor.pos] == '\r' {
-			win.cursor.pos++
+	if !isEOF(win.content, win.cursor) {
+		win.cursor++
+		if win.content[win.cursor] == '\r' {
+			win.cursor++
 		}
-		if win.content[win.cursor.pos] == '\n' {
-			win.cursor.pos++
+		if win.content[win.cursor] == '\n' {
+			win.cursor++
 		}
 	}
 }
