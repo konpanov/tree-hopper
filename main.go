@@ -14,10 +14,6 @@ const (
 	InsertMode Mode = iota
 )
 
-type Cursor struct {
-	col, row int
-}
-
 type Window struct {
 	filename string
 	content  string
@@ -53,7 +49,7 @@ func createWindow(filename string) *Window {
 		filename: filename,
 		content:  string(dat),
 		screen:   s,
-		cursor:   &Cursor{0, 0},
+		cursor:   &Cursor{0, 0, 0, 0, 0},
 		quiting:  false,
 		mode:     NormalMode,
 	}
@@ -72,23 +68,30 @@ func quit(win *Window) {
 
 func drawWindow(win *Window) {
 	col, row := 0, 0
-	for _, rune := range win.content {
-		if rune == '\n' {
+	for i, rune := range win.content {
+		if i == win.cursor.pos {
+			win.screen.ShowCursor(col, row)
+		}
+		switch rune {
+		case '\r':
+		case '\n':
 			col = 0
 			row++
-			continue
-		}
-		if rune == 9 {
-			for i := 0; i < 7; i++ {
+		case '\t':
+			_col := col
+			for ; col < _col+8; col++ {
 				win.screen.SetContent(col, row, rune, nil, tcell.Style{})
-				col++
 			}
+		default:
+			win.screen.SetContent(col, row, rune, nil, tcell.Style{})
+			col++
 		}
-		win.screen.SetContent(col, row, rune, nil, tcell.Style{})
-		col++
 	}
-	win.screen.ShowCursor(win.cursor.col, win.cursor.row)
 	win.screen.Show()
+}
+
+func SetContent(win *Window, col, row int, r rune) {
+	win.screen.SetContent(col, row, r, nil, tcell.Style{})
 }
 
 func handleEvents(win *Window) {
@@ -96,14 +99,10 @@ func handleEvents(win *Window) {
 
 	switch ev := ev.(type) {
 	case *tcell.EventKey:
-		handleEscapeEvent(win, ev)
-		handleModeEvents(win, ev)
+		handleQuitEvent(win, ev)
+		handleInsertModeEvents(win, ev)
+		handleNormalModeEvents(win, ev)
 	}
-}
-
-func handleModeEvents(win *Window, ev *tcell.EventKey) {
-	handleInsertModeEvents(win, ev)
-	handleNormalModeEvents(win, ev)
 }
 
 func handleNormalModeEvents(win *Window, ev *tcell.EventKey) {
@@ -114,15 +113,13 @@ func handleNormalModeEvents(win *Window, ev *tcell.EventKey) {
 	case 'i':
 		enterInsertMode(win)
 	case 'h':
-		win.cursor.col = max(0, win.cursor.col-1)
+		cursorLeft(win)
 	case 'j':
-		_, height := win.screen.Size()
-		win.cursor.row = min(height-1, win.cursor.row+1)
+		cursorDown(win)
 	case 'k':
-		win.cursor.row = max(0, win.cursor.row-1)
+		cursorUp(win)
 	case 'l':
-		width, _ := win.screen.Size()
-		win.cursor.col = min(width-1, win.cursor.col+1)
+		cursorRight(win)
 	}
 }
 
@@ -138,7 +135,7 @@ func handleInsertModeEvents(win *Window, ev *tcell.EventKey) {
 	}
 }
 
-func handleEscapeEvent(window *Window, ev *tcell.EventKey) {
+func handleQuitEvent(window *Window, ev *tcell.EventKey) {
 	window.quiting = ev.Key() == tcell.KeyCtrlC
 }
 
