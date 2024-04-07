@@ -68,11 +68,11 @@ func quit(win *Window) {
 
 func drawWindow(win *Window) {
 	col, row := 0, 0
-	for i, rune := range win.content {
+	for i, r := range win.content {
 		if i == win.cursor {
 			win.screen.ShowCursor(col, row)
 		}
-		switch rune {
+		switch r {
 		case '\r':
 		case '\n':
 			col = 0
@@ -80,10 +80,10 @@ func drawWindow(win *Window) {
 		case '\t':
 			_col := col
 			for ; col < _col+8; col++ {
-				win.screen.SetContent(col, row, rune, nil, tcell.Style{})
+				SetContent(win, col, row, r)
 			}
 		default:
-			win.screen.SetContent(col, row, rune, nil, tcell.Style{})
+			SetContent(win, col, row, r)
 			col++
 		}
 	}
