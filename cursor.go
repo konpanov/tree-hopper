@@ -40,12 +40,18 @@ func cursorDown(win *Window) {
 	}
 	if win.cursor != len(win.content)-1 {
 		win.cursor++
-		if win.content[win.cursor] == '\r' {
-			win.cursor++
-		}
-		if win.content[win.cursor] == '\n' {
-			win.cursor++
-		}
+	}
+	if win.cursor == len(win.content)-1 {
+		return
+	}
+	if win.content[win.cursor] == '\r' {
+		win.cursor++
+	}
+	if win.cursor == len(win.content)-1 {
+		return
+	}
+	if win.content[win.cursor] == '\n' {
+		win.cursor++
 	}
 }
 
