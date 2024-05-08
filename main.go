@@ -21,16 +21,16 @@ type CursorPos struct {
 }
 
 type Window struct {
-	filename      string
-	content       string
-	lines         []string
-	cursor_style  tcell.CursorStyle
-	cursor        *CursorPos
-	quiting       bool
-	mode          Mode
-	hieght        int
-	width         int
-	newLineChar string
+	filename     string
+	content      string
+	lines        []string
+	cursor_style tcell.CursorStyle
+	cursor       *CursorPos
+	quiting      bool
+	mode         Mode
+	hieght       int
+	width        int
+	newLineChar  string
 }
 
 func main() {
@@ -57,16 +57,16 @@ func main() {
 func createWindowFromString(content string, width, height int) *Window {
 	newLineChar := "\r\n"
 	window := &Window{
-		filename:      "",
-		content:       content,
-		lines:         strings.Split(content, newLineChar),
-		cursor:        &CursorPos{0, 0},
-		cursor_style:  tcell.CursorStyleSteadyBlock,
-		quiting:       false,
-		mode:          NormalMode,
-		width:         width,
-		hieght:        height,
-		newLineChar: newLineChar,
+		filename:     "",
+		content:      content,
+		lines:        strings.Split(content, newLineChar),
+		cursor:       &CursorPos{0, 0},
+		cursor_style: tcell.CursorStyleSteadyBlock,
+		quiting:      false,
+		mode:         NormalMode,
+		width:        width,
+		hieght:       height,
+		newLineChar:  newLineChar,
 	}
 	return window
 }
@@ -76,6 +76,10 @@ func createWindow(filename string, width, height int) *Window {
 	window := createWindowFromString(content, width, height)
 	window.filename = filename
 	return window
+}
+
+func windowContent(win *Window) string {
+	return strings.Join(win.lines, win.newLineChar)
 }
 
 func quit(screen tcell.Screen, win *Window) {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"strings"
 )
 
 func readFile(filename string) string {
@@ -19,8 +18,7 @@ func writeFile(win *Window) {
 		panic(err)
 	}
 	defer f.Close()
-	content := strings.Join(win.lines, win.newLineChar)
-	_, err = f.WriteString(content)
+	_, err = f.WriteString(windowContent(win))
 	if err != nil {
 		panic(err)
 	}

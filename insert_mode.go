@@ -20,6 +20,8 @@ func handleInsertModeEvents(win *Window, ev *tcell.EventKey) {
 		enterNormalMode(win)
 	case tcell.KeyBS:
 		removeUnderCursor(win)
+	case tcell.KeyEnter:
+		splitLineUnderCursor(win)
 	case tcell.KeyRune:
 		insertUnderCursor(win, string(ev.Rune()))
 
@@ -65,4 +67,18 @@ func mergeLines(win *Window, line int) {
 	win.lines[line] = sb.String()
 	win.lines = append(win.lines[:line+1], win.lines[line+2:]...)
 
+}
+
+func splitLineUnderCursor(win *Window) {
+	line := win.cursor.line
+	char := win.cursor.char
+	if line < len(win.lines)-1 {
+		win.lines = append(win.lines[:line+1], win.lines[line:]...)
+	} else {
+		win.lines = append(win.lines, "")
+	}
+	win.lines[line+1] = win.lines[line][char:]
+	win.lines[line] = win.lines[line][:char]
+	win.cursor.char = 0
+	win.cursor.line = line + 1
 }
