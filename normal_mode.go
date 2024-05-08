@@ -3,14 +3,7 @@ package main
 import "github.com/gdamore/tcell/v2"
 
 func enterNormalMode(win *Window) {
-	content := win.content
-	win.cursor = min(win.cursor, len(win.content)-1)
-	cursor := win.cursor
-	isOnNewLine := isNewLine(content[cursor])
-	isAfterNewLine := cursor != 0 && isNewLine(content[cursor-1])
-	if isOnNewLine && isAfterNewLine {
-		win.cursor--
-	}
+	win.cursor.char = max(min(win.cursor.char-1, mostRight(win)), 0)
 	win.mode = NormalMode
 	win.cursor_style = tcell.CursorStyleSteadyBlock
 }
@@ -26,6 +19,9 @@ func handleNormalModeEvents(win *Window, ev *tcell.EventKey) {
 		switch ev.Rune() {
 		case 'i':
 			enterInsertMode(win)
+		case 'a':
+			enterInsertMode(win)
+			cursorRight(win)
 		case 'h':
 			cursorLeft(win)
 		case 'j':

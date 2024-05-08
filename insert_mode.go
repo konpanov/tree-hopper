@@ -1,6 +1,10 @@
 package main
 
-import "github.com/gdamore/tcell/v2"
+import (
+	"strings"
+
+	"github.com/gdamore/tcell/v2"
+)
 
 func enterInsertMode(win *Window) {
 	win.mode = InsertMode
@@ -17,23 +21,48 @@ func handleInsertModeEvents(win *Window, ev *tcell.EventKey) {
 	case tcell.KeyBS:
 		removeUnderCursor(win)
 	case tcell.KeyRune:
-		insertUndercursor(win, string(ev.Rune()))
+		insertUnderCursor(win, string(ev.Rune()))
 
 	}
 }
 
 func removeUnderCursor(win *Window) {
-	if win.cursor > 1 && win.content[win.cursor-2] == '\r' && win.content[win.cursor-1] == '\n' {
-		win.content = win.content[:win.cursor-2] + win.content[win.cursor:]
-		cursorLeft(win)
-		cursorLeft(win)
+	char := win.cursor.char
+	line := win.cursor.line
+	if char == 0 && line == 0 {
+		return
+	}
+	if char == 0 {
+		win.cursor.line = win.cursor.line - 1
+		win.cursor.char = mostRight(win)
+		mergeLines(win, win.cursor.line)
 	} else {
-		win.content = win.content[:win.cursor-1] + win.content[win.cursor:]
+		var sb strings.Builder
+		line := win.lines[win.cursor.line]
+		char := win.cursor.char
+		sb.WriteString(line[:char-1])
+		sb.WriteString(line[char:])
+		win.lines[win.cursor.line] = sb.String()
 		cursorLeft(win)
 	}
 }
 
-func insertUndercursor(win *Window, content string) {
-	win.content = win.content[:win.cursor] + string(content) + win.content[win.cursor:]
-	win.cursor++
+func insertUnderCursor(win *Window, content string) {
+	char := win.cursor.char
+	line := win.lines[win.cursor.line]
+	var sb strings.Builder
+	sb.WriteString(line[:char])
+	sb.WriteString(content)
+	sb.WriteString(line[char:])
+	win.lines[win.cursor.line] = sb.String()
+	cursorRight(win)
+}
+
+func mergeLines(win *Window, line int) {
+	var sb strings.Builder
+	sb.WriteString(win.lines[line])
+	sb.WriteString(win.lines[line+1])
+	win.lines[line] = sb.String()
+	win.lines = append(win.lines[:line+1], win.lines[line+2:]...)
+
 }

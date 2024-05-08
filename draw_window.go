@@ -4,28 +4,43 @@ import "github.com/gdamore/tcell/v2"
 
 func drawWindow(screen tcell.Screen, win *Window) {
 	screen.Clear()
-	screen.SetCursorStyle(win.cursor_style)
-	col, row := 0, 0
-	for i, r := range win.content {
-		if i == win.cursor {
-			screen.ShowCursor(col, row)
-		}
-		switch r {
-		case '\r':
-		case '\n':
-			col = 0
-			row++
-		case '\t':
-			_col := col
-			for ; col < _col+8; col++ {
-				SetContent(screen, col, row, r)
+	drawCharachters(screen, win)
+	drawCursor(screen, win)
+	screen.Show()
+}
+
+func drawCursor(screen tcell.Screen, win *Window) {
+	cursor := *win.cursor
+	line := win.lines[win.cursor.line]
+	offset := 0
+	if len(line) != 0 {
+		for i := 0; i < win.cursor.char; i++ {
+			if line[i] == '\t' {
+				offset += 7
 			}
-		default:
-			SetContent(screen, col, row, r)
-			col++
+		}
+		if win.mode == NormalMode && line[cursor.char] == '\t' {
+			offset += 7
 		}
 	}
-	screen.Show()
+	screen.HideCursor()
+	screen.SetCursorStyle(win.cursor_style)
+	screen.ShowCursor(cursor.char+offset, win.cursor.line)
+}
+
+func drawCharachters(screen tcell.Screen, win *Window) {
+	for r, line := range win.lines {
+		offset := 0
+		for c, char := range line {
+			switch char {
+			case '\t':
+				offset += 7
+				SetContent(screen, c+offset, r, ' ')
+			default:
+				SetContent(screen, c+offset, r, char)
+			}
+		}
+	}
 }
 
 func SetContent(screen tcell.Screen, col, row int, r rune) {

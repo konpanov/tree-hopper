@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strings"
 
 	"github.com/gdamore/tcell/v2"
 )
@@ -14,13 +15,22 @@ const (
 	InsertMode Mode = iota
 )
 
+type CursorPos struct {
+	line int
+	char int
+}
+
 type Window struct {
-	filename     string
-	content      string
-	cursor_style tcell.CursorStyle
-	cursor       int
-	quiting      bool
-	mode         Mode
+	filename      string
+	content       string
+	lines         []string
+	cursor_style  tcell.CursorStyle
+	cursor        *CursorPos
+	quiting       bool
+	mode          Mode
+	hieght        int
+	width         int
+	newLineChar string
 }
 
 func main() {
@@ -28,7 +38,6 @@ func main() {
 	if len(os.Args) >= 2 {
 		filename = os.Args[1]
 	}
-	win := createWindow(filename)
 	screen, err := tcell.NewScreen()
 	if err != nil {
 		log.Fatalf("%+v", err)
@@ -36,6 +45,8 @@ func main() {
 	if err := screen.Init(); err != nil {
 		log.Fatalf("%+v", err)
 	}
+	w, h := screen.Size()
+	win := createWindow(filename, w, h)
 	defer quit(screen, win)
 	for !win.quiting {
 		drawWindow(screen, win)
@@ -43,15 +54,27 @@ func main() {
 	}
 }
 
-func createWindow(filename string) *Window {
+func createWindowFromString(content string, width, height int) *Window {
+	newLineChar := "\r\n"
 	window := &Window{
-		filename:     filename,
-		content:      readFile(filename),
-		cursor:       0,
-		cursor_style: tcell.CursorStyleSteadyBlock,
-		quiting:      false,
-		mode:         NormalMode,
+		filename:      "",
+		content:       content,
+		lines:         strings.Split(content, newLineChar),
+		cursor:        &CursorPos{0, 0},
+		cursor_style:  tcell.CursorStyleSteadyBlock,
+		quiting:       false,
+		mode:          NormalMode,
+		width:         width,
+		hieght:        height,
+		newLineChar: newLineChar,
 	}
+	return window
+}
+
+func createWindow(filename string, width, height int) *Window {
+	content := readFile(filename)
+	window := createWindowFromString(content, width, height)
+	window.filename = filename
 	return window
 }
 
