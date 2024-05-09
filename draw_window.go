@@ -25,11 +25,12 @@ func drawCursor(screen tcell.Screen, win *Window) {
 	}
 	screen.HideCursor()
 	screen.SetCursorStyle(win.cursor_style)
-	screen.ShowCursor(cursor.char+offset, win.cursor.line)
+	screen.ShowCursor(cursor.char+offset, win.cursor.line-win.topLine)
 }
 
 func drawCharachters(screen tcell.Screen, win *Window) {
-	for r, line := range win.lines {
+	botLine := min(win.topLine+win.height, len(win.lines))
+	for r, line := range win.lines[win.topLine:botLine] {
 		offset := 0
 		for c, char := range line {
 			switch char {

@@ -28,9 +28,10 @@ type Window struct {
 	cursor       *CursorPos
 	quiting      bool
 	mode         Mode
-	hieght       int
+	height       int
 	width        int
 	newLineChar  string
+	topLine      int
 }
 
 func main() {
@@ -56,17 +57,19 @@ func main() {
 
 func createWindowFromString(content string, width, height int) *Window {
 	newLineChar := "\r\n"
+	lines := strings.Split(content, newLineChar)
 	window := &Window{
 		filename:     "",
 		content:      content,
-		lines:        strings.Split(content, newLineChar),
+		lines:        lines,
 		cursor:       &CursorPos{0, 0},
 		cursor_style: tcell.CursorStyleSteadyBlock,
 		quiting:      false,
 		mode:         NormalMode,
 		width:        width,
-		hieght:       height,
+		height:       height,
 		newLineChar:  newLineChar,
+		topLine:      0,
 	}
 	return window
 }

@@ -67,3 +67,31 @@ func TestCursorDownUpDown(t *testing.T) {
 		t.Errorf("%d != %d", win.cursor, expected)
 	}
 }
+
+func TestSlideWindowOnDown(t *testing.T) {
+	win := createWindowFromString(createNLines(100), 80, 40)
+	assertIntEqual(t, win.topLine, 0)
+	for i := 0; i < 40; i++ {
+		cursorDown(win)
+	}
+	assertIntEqual(t, win.topLine, 1)
+}
+
+func TestSlideWindowUp(t *testing.T) {
+	win := createWindowFromString(createNLines(100), 80, 40)
+	for i := 0; i < 60; i++ {
+		cursorDown(win)
+	}
+	assertIntEqual(t, win.topLine, 21)
+	for i := 0; i < 60; i++ {
+		cursorDown(win)
+	}
+}
+
+func TestCursorStopAtLastLine(t *testing.T) {
+	win := createWindow("assets/tests/42lines.txt", 80, 40)
+	for i := 0; i < 150; i++ {
+		cursorDown(win)
+	}
+	assertIntEqual(t, win.cursor.line, 41)
+}

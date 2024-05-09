@@ -14,6 +14,7 @@ func cursorRight(win *Window) {
 func cursorUp(win *Window) {
 	win.cursor.line = max(win.cursor.line-1, 0)
 	win.cursor.char = min(win.cursor.char, mostRight(win))
+	win.topLine = min(win.topLine, win.cursor.line)
 }
 
 //Moves cursor down one line to the start of the line
@@ -21,6 +22,7 @@ func cursorDown(win *Window) {
 	line_count := len(win.lines)
 	win.cursor.line = min(win.cursor.line+1, line_count-1)
 	win.cursor.char = min(win.cursor.char, mostRight(win))
+	win.topLine = max(win.topLine, win.cursor.line-win.height+1)
 }
 
 func mostRight(win *Window) int {
