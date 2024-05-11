@@ -5,93 +5,93 @@ import (
 )
 
 func TestCursorRight(t *testing.T) {
-	win := createWindowFromString("qwe\r\nasd", 80, 200)
-	cursorRight(win)
+	buf := createBufferFromString("qwe\r\nasd", 80, 200)
+	cursorRight(buf)
 	expected := CursorPos{0, 1}
-	if *win.cursor != expected {
-		t.Errorf("%d != %d", win.cursor, expected)
+	if *buf.cursor != expected {
+		t.Errorf("%d != %d", buf.cursor, expected)
 	}
 }
 
 func TestCursorRightDoesNotSkipLines(t *testing.T) {
-	win := createWindowFromString("qwe\r\nasd", 80, 200)
-	cursorRight(win)
-	cursorRight(win)
-	cursorRight(win)
+	buf := createBufferFromString("qwe\r\nasd", 80, 200)
+	cursorRight(buf)
+	cursorRight(buf)
+	cursorRight(buf)
 	expected := CursorPos{0, 2}
-	if *win.cursor != expected {
-		t.Errorf("%d != %d", win.cursor, expected)
+	if *buf.cursor != expected {
+		t.Errorf("%d != %d", buf.cursor, expected)
 	}
 }
 
 func TestCursorLeftDoesNotSkipLines(t *testing.T) {
-	win := createWindowFromString("qwe\r\nasd", 80, 200)
-	cursorDown(win)
-	cursorRight(win)
-	cursorLeft(win)
-	cursorLeft(win)
-	cursorLeft(win)
-	cursorLeft(win)
+	buf := createBufferFromString("qwe\r\nasd", 80, 200)
+	cursorDown(buf)
+	cursorRight(buf)
+	cursorLeft(buf)
+	cursorLeft(buf)
+	cursorLeft(buf)
+	cursorLeft(buf)
 	expected := CursorPos{1, 0}
-	if *win.cursor != expected {
-		t.Errorf("%d != %d", win.cursor, expected)
+	if *buf.cursor != expected {
+		t.Errorf("%d != %d", buf.cursor, expected)
 	}
 }
 
 func TestCursorDown(t *testing.T) {
-	win := createWindowFromString("qwe\r\nasd", 80, 200)
-	cursorDown(win)
+	buf := createBufferFromString("qwe\r\nasd", 80, 200)
+	cursorDown(buf)
 	expected := CursorPos{1, 0}
-	if *win.cursor != expected {
-		t.Errorf("%d != %d", win.cursor, expected)
+	if *buf.cursor != expected {
+		t.Errorf("%d != %d", buf.cursor, expected)
 	}
 }
 
 func TestCursorDownAndUp(t *testing.T) {
-	win := createWindowFromString("qwe\r\nasd", 80, 200)
-	cursorDown(win)
-	cursorUp(win)
+	buf := createBufferFromString("qwe\r\nasd", 80, 200)
+	cursorDown(buf)
+	cursorUp(buf)
 	expected := CursorPos{0, 0}
-	if *win.cursor != expected {
-		t.Errorf("%d != %d", win.cursor, expected)
+	if *buf.cursor != expected {
+		t.Errorf("%d != %d", buf.cursor, expected)
 	}
 }
 
 func TestCursorDownUpDown(t *testing.T) {
-	win := createWindowFromString("qwe\r\nasd", 80, 200)
-	cursorDown(win)
-	cursorUp(win)
-	cursorDown(win)
+	buf := createBufferFromString("qwe\r\nasd", 80, 200)
+	cursorDown(buf)
+	cursorUp(buf)
+	cursorDown(buf)
 	expected := CursorPos{1, 0}
-	if *win.cursor != expected {
-		t.Errorf("%d != %d", win.cursor, expected)
+	if *buf.cursor != expected {
+		t.Errorf("%d != %d", buf.cursor, expected)
 	}
 }
 
 func TestSlideWindowOnDown(t *testing.T) {
-	win := createWindowFromString(createNLines(100), 80, 40)
-	assertIntEqual(t, win.topLine, 0)
+	buf := createBufferFromString(createNLines(100), 80, 40)
+	assertIntEqual(t, buf.topLine, 0)
 	for i := 0; i < 40; i++ {
-		cursorDown(win)
+		cursorDown(buf)
 	}
-	assertIntEqual(t, win.topLine, 1)
+	assertIntEqual(t, buf.topLine, 1)
 }
 
 func TestSlideWindowUp(t *testing.T) {
-	win := createWindowFromString(createNLines(100), 80, 40)
+	buf := createBufferFromString(createNLines(100), 80, 40)
 	for i := 0; i < 60; i++ {
-		cursorDown(win)
+		cursorDown(buf)
 	}
-	assertIntEqual(t, win.topLine, 21)
+	assertIntEqual(t, buf.topLine, 21)
 	for i := 0; i < 60; i++ {
-		cursorDown(win)
+		cursorDown(buf)
 	}
 }
 
 func TestCursorStopAtLastLine(t *testing.T) {
-	win := createWindow("assets/tests/42lines.txt", 80, 40)
+	buf := createBufferFromFile("assets/tests/42lines.txt", 80, 40)
 	for i := 0; i < 150; i++ {
-		cursorDown(win)
+		cursorDown(buf)
 	}
-	assertIntEqual(t, win.cursor.line, 41)
+	assertIntEqual(t, buf.cursor.line, 41)
 }

@@ -4,30 +4,30 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-func enterVisualMode(win *Window) {
-	win.mode = VisualMode
-	win.cursor_style = tcell.CursorStyleSteadyBlock
-	win.visualOrigin.line = win.cursor.line
-	win.visualOrigin.char = win.cursor.char
+func enterVisualMode(buf *Buffer) {
+	buf.mode = VisualMode
+	buf.cursor_style = tcell.CursorStyleSteadyBlock
+	buf.visualOrigin.line = buf.cursor.line
+	buf.visualOrigin.char = buf.cursor.char
 }
 
-func handleVisualModeEvents(win *Window, ev *tcell.EventKey) {
-	if win.mode != VisualMode {
+func handleVisualModeEvents(buf *Buffer, ev *tcell.EventKey) {
+	if buf.mode != VisualMode {
 		return
 	}
 	switch ev.Key() {
 	case tcell.KeyEsc:
-		enterNormalMode(win)
+		enterNormalMode(buf)
 	case tcell.KeyRune:
 		switch ev.Rune() {
 		case 'h':
-			cursorLeft(win)
+			cursorLeft(buf)
 		case 'j':
-			cursorDown(win)
+			cursorDown(buf)
 		case 'k':
-			cursorUp(win)
+			cursorUp(buf)
 		case 'l':
-			cursorRight(win)
+			cursorRight(buf)
 		}
 	}
 }

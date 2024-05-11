@@ -7,45 +7,45 @@ import (
 type Screen = tcell.Screen
 type Style = tcell.Style
 
-func drawWindow(screen Screen, win *Window) {
+func drawWindow(screen Screen, buf *Buffer) {
 	screen.Clear()
-	drawCharachters(screen, win)
-	drawCursor(screen, win)
-	drawHighlighted(screen, win)
+	drawCharachters(screen, buf)
+	drawCursor(screen, buf)
+	drawHighlighted(screen, buf)
 	screen.Show()
 }
 
-func drawCursor(screen Screen, win *Window) {
-	cursor := *win.cursor
-	line := win.lines[win.cursor.line]
+func drawCursor(screen Screen, buf *Buffer) {
+	cursor := *buf.cursor
+	line := buf.lines[buf.cursor.line]
 	offset := 0
 	if len(line) != 0 {
-		for i := 0; i < win.cursor.char; i++ {
+		for i := 0; i < buf.cursor.char; i++ {
 			offset += RuneWidth(rune(line[i])) - 1
 		}
-		if win.mode == NormalMode {
+		if buf.mode == NormalMode {
 			offset += RuneWidth(rune(line[cursor.char])) - 1
 		}
 	}
 	screen.HideCursor()
-	screen.SetCursorStyle(win.cursor_style)
-	screen.ShowCursor(cursor.char+offset, win.cursor.line-win.topLine)
+	screen.SetCursorStyle(buf.cursor_style)
+	screen.ShowCursor(cursor.char+offset, buf.cursor.line-buf.topLine)
 }
 
-func drawCharachters(s Screen, win *Window) {
+func drawCharachters(s Screen, buf *Buffer) {
 	_, h := s.Size()
-	for row := 0; row < h && row < len(win.lines); row++ {
-		line := win.lines[win.topLine+row]
-		drawLine(s, row, line, 0, len(line), win.defStyle)
+	for row := 0; row < h && row < len(buf.lines); row++ {
+		line := buf.lines[buf.topLine+row]
+		drawLine(s, row, line, 0, len(line), buf.defStyle)
 	}
 }
 
-func drawHighlighted(s Screen, win *Window) {
-	if win.mode != VisualMode {
+func drawHighlighted(s Screen, buf *Buffer) {
+	if buf.mode != VisualMode {
 		return
 	}
-	vo := win.visualOrigin
-	cr := win.cursor
+	vo := buf.visualOrigin
+	cr := buf.cursor
 	hls := vo
 	hle := cr
 	if vo.line > cr.line {
@@ -53,27 +53,27 @@ func drawHighlighted(s Screen, win *Window) {
 	}
 
 	if hls.line == hle.line {
-		line := win.lines[hls.line]
-		row := hls.line - win.topLine
+		line := buf.lines[hls.line]
+		row := hls.line - buf.topLine
 		from := min(hls.char, hle.char)
 		to := max(hls.char, hle.char)
-		drawLine(s, row, line, from, to, win.visStyle)
+		drawLine(s, row, line, from, to, buf.visStyle)
 		return
 	}
 
-	line := win.lines[hls.line]
-	screenRow := hls.line - win.topLine
-	drawLine(s, screenRow, line, hls.char, len(line), win.visStyle)
+	line := buf.lines[hls.line]
+	screenRow := hls.line - buf.topLine
+	drawLine(s, screenRow, line, hls.char, len(line), buf.visStyle)
 
 	for row := hls.line + 1; row < hle.line; row++ {
-		line := win.lines[row]
-		screenRow := row - win.topLine
-		drawLine(s, screenRow, line, 0, len(line), win.visStyle)
+		line := buf.lines[row]
+		screenRow := row - buf.topLine
+		drawLine(s, screenRow, line, 0, len(line), buf.visStyle)
 	}
 
-	line = win.lines[hle.line]
-	screenRow = hle.line - win.topLine
-	drawLine(s, screenRow, line, 0, hle.char, win.visStyle)
+	line = buf.lines[hle.line]
+	screenRow = hle.line - buf.topLine
+	drawLine(s, screenRow, line, 0, hle.char, buf.visStyle)
 }
 
 func drawLine(s Screen, row int, line string, from, to int, style Style) {

@@ -21,7 +21,7 @@ type CursorPos struct {
 	char int
 }
 
-type Window struct {
+type Buffer struct {
 	filename     string
 	content      string
 	lines        []string
@@ -51,19 +51,19 @@ func main() {
 		log.Fatalf("%+v", err)
 	}
 	w, h := screen.Size()
-	win := createWindow(filename, w, h)
-	defer quit(screen, win)
-	for !win.quiting {
-		drawWindow(screen, win)
-		handleEvents(screen.PollEvent(), win)
+	buf := createBufferFromFile(filename, w, h)
+	defer quit(screen, buf)
+	for !buf.quiting {
+		drawWindow(screen, buf)
+		handleEvents(screen.PollEvent(), buf)
 	}
 }
 
-func createWindowFromString(content string, width, height int) *Window {
+func createBufferFromString(content string, width, height int) *Buffer {
 	newLineChar := "\r\n"
 	lines := strings.Split(content, newLineChar)
 	visColor := tcell.ColorGray
-	window := &Window{
+	buf := &Buffer{
 		filename:     "",
 		content:      content,
 		lines:        lines,
@@ -79,21 +79,21 @@ func createWindowFromString(content string, width, height int) *Window {
 		defStyle:     tcell.StyleDefault,
 		visStyle:     tcell.StyleDefault.Background(visColor),
 	}
-	return window
+	return buf
 }
 
-func createWindow(filename string, width, height int) *Window {
+func createBufferFromFile(filename string, width, height int) *Buffer {
 	content := readFile(filename)
-	window := createWindowFromString(content, width, height)
-	window.filename = filename
-	return window
+	buf := createBufferFromString(content, width, height)
+	buf.filename = filename
+	return buf
 }
 
-func windowContent(win *Window) string {
-	return strings.Join(win.lines, win.newLineChar)
+func bufferContent(buf *Buffer) string {
+	return strings.Join(buf.lines, buf.newLineChar)
 }
 
-func quit(screen tcell.Screen, win *Window) {
+func quit(screen tcell.Screen, buf *Buffer) {
 	maybePanic := recover()
 	screen.Fini()
 	if maybePanic != nil {

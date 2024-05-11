@@ -6,79 +6,79 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-func enterInsertMode(win *Window) {
-	win.mode = InsertMode
-	win.cursor_style = tcell.CursorStyleBlinkingBar
+func enterInsertMode(buf *Buffer) {
+	buf.mode = InsertMode
+	buf.cursor_style = tcell.CursorStyleBlinkingBar
 }
 
-func handleInsertModeEvents(win *Window, ev *tcell.EventKey) {
-	if win.mode != InsertMode {
+func handleInsertModeEvents(buf *Buffer, ev *tcell.EventKey) {
+	if buf.mode != InsertMode {
 		return
 	}
 	switch ev.Key() {
 	case tcell.KeyEsc:
-		enterNormalMode(win)
+		enterNormalMode(buf)
 	case tcell.KeyBS:
-		removeUnderCursor(win)
+		removeUnderCursor(buf)
 	case tcell.KeyEnter:
-		splitLineUnderCursor(win)
+		splitLineUnderCursor(buf)
 	case tcell.KeyRune:
-		insertUnderCursor(win, string(ev.Rune()))
+		insertUnderCursor(buf, string(ev.Rune()))
 
 	}
 }
 
-func removeUnderCursor(win *Window) {
-	char := win.cursor.char
-	line := win.cursor.line
+func removeUnderCursor(buf *Buffer) {
+	char := buf.cursor.char
+	line := buf.cursor.line
 	if char == 0 && line == 0 {
 		return
 	}
 	if char == 0 {
-		win.cursor.line = win.cursor.line - 1
-		win.cursor.char = mostRight(win)
-		mergeLines(win, win.cursor.line)
+		buf.cursor.line = buf.cursor.line - 1
+		buf.cursor.char = mostRight(buf)
+		mergeLines(buf, buf.cursor.line)
 	} else {
 		var sb strings.Builder
-		line := win.lines[win.cursor.line]
-		char := win.cursor.char
+		line := buf.lines[buf.cursor.line]
+		char := buf.cursor.char
 		sb.WriteString(line[:char-1])
 		sb.WriteString(line[char:])
-		win.lines[win.cursor.line] = sb.String()
-		cursorLeft(win)
+		buf.lines[buf.cursor.line] = sb.String()
+		cursorLeft(buf)
 	}
 }
 
-func insertUnderCursor(win *Window, content string) {
-	char := win.cursor.char
-	line := win.lines[win.cursor.line]
+func insertUnderCursor(buf *Buffer, content string) {
+	char := buf.cursor.char
+	line := buf.lines[buf.cursor.line]
 	var sb strings.Builder
 	sb.WriteString(line[:char])
 	sb.WriteString(content)
 	sb.WriteString(line[char:])
-	win.lines[win.cursor.line] = sb.String()
-	cursorRight(win)
+	buf.lines[buf.cursor.line] = sb.String()
+	cursorRight(buf)
 }
 
-func mergeLines(win *Window, line int) {
+func mergeLines(buf *Buffer, line int) {
 	var sb strings.Builder
-	sb.WriteString(win.lines[line])
-	sb.WriteString(win.lines[line+1])
-	win.lines[line] = sb.String()
-	win.lines = append(win.lines[:line+1], win.lines[line+2:]...)
+	sb.WriteString(buf.lines[line])
+	sb.WriteString(buf.lines[line+1])
+	buf.lines[line] = sb.String()
+	buf.lines = append(buf.lines[:line+1], buf.lines[line+2:]...)
 
 }
 
-func splitLineUnderCursor(win *Window) {
-	line := win.cursor.line
-	char := win.cursor.char
-	if line < len(win.lines)-1 {
-		win.lines = append(win.lines[:line+1], win.lines[line:]...)
+func splitLineUnderCursor(buf *Buffer) {
+	line := buf.cursor.line
+	char := buf.cursor.char
+	if line < len(buf.lines)-1 {
+		buf.lines = append(buf.lines[:line+1], buf.lines[line:]...)
 	} else {
-		win.lines = append(win.lines, "")
+		buf.lines = append(buf.lines, "")
 	}
-	win.lines[line+1] = win.lines[line][char:]
-	win.lines[line] = win.lines[line][:char]
-	win.cursor.char = 0
-	win.cursor.line = line + 1
+	buf.lines[line+1] = buf.lines[line][char:]
+	buf.lines[line] = buf.lines[line][:char]
+	buf.cursor.char = 0
+	buf.cursor.line = line + 1
 }

@@ -12,13 +12,13 @@ func readFile(filename string) string {
 	return string(dat[:len(dat)-2])
 }
 
-func writeFile(win *Window) {
-	f, err := os.Create(win.filename)
+func writeFile(buf *Buffer) {
+	f, err := os.Create(buf.filename)
 	if err != nil {
 		panic(err)
 	}
 	defer f.Close()
-	_, err = f.WriteString(windowContent(win))
+	_, err = f.WriteString(bufferContent(buf))
 	if err != nil {
 		panic(err)
 	}

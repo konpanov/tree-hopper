@@ -2,36 +2,36 @@ package main
 
 import "github.com/gdamore/tcell/v2"
 
-func enterNormalMode(win *Window) {
-	win.cursor.char = max(min(win.cursor.char-1, mostRight(win)), 0)
-	win.mode = NormalMode
-	win.cursor_style = tcell.CursorStyleSteadyBlock
+func enterNormalMode(buf *Buffer) {
+	buf.cursor.char = max(min(buf.cursor.char-1, mostRight(buf)), 0)
+	buf.mode = NormalMode
+	buf.cursor_style = tcell.CursorStyleSteadyBlock
 }
 
-func handleNormalModeEvents(win *Window, ev *tcell.EventKey) {
-	if win.mode != NormalMode {
+func handleNormalModeEvents(buf *Buffer, ev *tcell.EventKey) {
+	if buf.mode != NormalMode {
 		return
 	}
 	switch ev.Key() {
 	case tcell.KeyCtrlS:
-		writeFile(win)
+		writeFile(buf)
 	case tcell.KeyRune:
 		switch ev.Rune() {
 		case 'i':
-			enterInsertMode(win)
+			enterInsertMode(buf)
 		case 'a':
-			enterInsertMode(win)
-			cursorRight(win)
+			enterInsertMode(buf)
+			cursorRight(buf)
 		case 'v':
-			enterVisualMode(win)
+			enterVisualMode(buf)
 		case 'h':
-			cursorLeft(win)
+			cursorLeft(buf)
 		case 'j':
-			cursorDown(win)
+			cursorDown(buf)
 		case 'k':
-			cursorUp(win)
+			cursorUp(buf)
 		case 'l':
-			cursorRight(win)
+			cursorRight(buf)
 		}
 	}
 }

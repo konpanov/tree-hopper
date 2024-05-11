@@ -1,34 +1,34 @@
 package main
 
 //Moves cursor to the left by one position. Does not skip lines.
-func cursorLeft(win *Window) {
-	win.cursor.char = max(win.cursor.char-1, 0)
+func cursorLeft(buf *Buffer) {
+	buf.cursor.char = max(buf.cursor.char-1, 0)
 }
 
 //Moves cursor to the right by one position. Does not skip lines.
-func cursorRight(win *Window) {
-	win.cursor.char = min(win.cursor.char+1, mostRight(win))
+func cursorRight(buf *Buffer) {
+	buf.cursor.char = min(buf.cursor.char+1, mostRight(buf))
 }
 
 //Moves cursor up one line to the end of the line
-func cursorUp(win *Window) {
-	win.cursor.line = max(win.cursor.line-1, 0)
-	win.cursor.char = min(win.cursor.char, mostRight(win))
-	win.topLine = min(win.topLine, win.cursor.line)
+func cursorUp(buf *Buffer) {
+	buf.cursor.line = max(buf.cursor.line-1, 0)
+	buf.cursor.char = min(buf.cursor.char, mostRight(buf))
+	buf.topLine = min(buf.topLine, buf.cursor.line)
 }
 
 //Moves cursor down one line to the start of the line
-func cursorDown(win *Window) {
-	line_count := len(win.lines)
-	win.cursor.line = min(win.cursor.line+1, line_count-1)
-	win.cursor.char = min(win.cursor.char, mostRight(win))
-	win.topLine = max(win.topLine, win.cursor.line-win.height+1)
+func cursorDown(buf *Buffer) {
+	line_count := len(buf.lines)
+	buf.cursor.line = min(buf.cursor.line+1, line_count-1)
+	buf.cursor.char = min(buf.cursor.char, mostRight(buf))
+	buf.topLine = max(buf.topLine, buf.cursor.line-buf.height+1)
 }
 
-func mostRight(win *Window) int {
-	if win.mode == InsertMode {
-		return len(win.lines[win.cursor.line])
+func mostRight(buf *Buffer) int {
+	if buf.mode == InsertMode {
+		return len(buf.lines[buf.cursor.line])
 	} else {
-		return max(len(win.lines[win.cursor.line])-1, 0)
+		return max(len(buf.lines[buf.cursor.line])-1, 0)
 	}
 }
