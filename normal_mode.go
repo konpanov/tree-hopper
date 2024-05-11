@@ -22,6 +22,8 @@ func handleNormalModeEvents(win *Window, ev *tcell.EventKey) {
 		case 'a':
 			enterInsertMode(win)
 			cursorRight(win)
+		case 'v':
+			enterVisualMode(win)
 		case 'h':
 			cursorLeft(win)
 		case 'j':

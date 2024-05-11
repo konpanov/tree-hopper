@@ -13,6 +13,7 @@ type Mode int8
 const (
 	NormalMode Mode = iota
 	InsertMode Mode = iota
+	VisualMode Mode = iota
 )
 
 type CursorPos struct {
@@ -24,8 +25,11 @@ type Window struct {
 	filename     string
 	content      string
 	lines        []string
+	defStyle     tcell.Style
+	visStyle     tcell.Style
 	cursor_style tcell.CursorStyle
 	cursor       *CursorPos
+	visualOrigin *CursorPos
 	quiting      bool
 	mode         Mode
 	height       int
@@ -58,11 +62,13 @@ func main() {
 func createWindowFromString(content string, width, height int) *Window {
 	newLineChar := "\r\n"
 	lines := strings.Split(content, newLineChar)
+	visColor := tcell.ColorGray
 	window := &Window{
 		filename:     "",
 		content:      content,
 		lines:        lines,
 		cursor:       &CursorPos{0, 0},
+		visualOrigin: &CursorPos{0, 0},
 		cursor_style: tcell.CursorStyleSteadyBlock,
 		quiting:      false,
 		mode:         NormalMode,
@@ -70,6 +76,8 @@ func createWindowFromString(content string, width, height int) *Window {
 		height:       height,
 		newLineChar:  newLineChar,
 		topLine:      0,
+		defStyle:     tcell.StyleDefault,
+		visStyle:     tcell.StyleDefault.Background(visColor),
 	}
 	return window
 }

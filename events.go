@@ -10,6 +10,7 @@ func handleEvents(ev tcell.Event, win *Window) {
 		handleQuitEvent(win, ev)
 		handleInsertModeEvents(win, ev)
 		handleNormalModeEvents(win, ev)
+		handleVisualModeEvents(win, ev)
 	}
 }
 
